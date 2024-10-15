@@ -79,8 +79,8 @@ void DLL_Error(void)
  *
  * @param list Ukazatel na strukturu dvousměrně vázaného seznamu
  */
-void DLL_Init(DLList *list)
-{
+void DLL_Init(DLList *list) // Inicializace seznamu
+{							// Nastavení pointerů na NULL a délky seznamu na 0
 	list->firstElement = NULL;
 	list->lastElement = NULL;
 	list->activeElement = NULL;
@@ -96,14 +96,14 @@ void DLL_Init(DLList *list)
  */
 void DLL_Dispose(DLList *list)
 {
-	for (int i = 0; i < list->currentLength; i++)
-	{
-		DLLElementPtr delElement;
-		delElement = list->firstElement;
+	for (int i = 0; i < list->currentLength; i++) // Pro počet prvků v seznamu se první element
+	{											  // uloží do dočasné proměnné, ukazatel na první
+		DLLElementPtr delElement;				  // element se nastaví na další element a
+		delElement = list->firstElement;		  // dočasná proměnná se uvolní
 		list->firstElement = delElement->nextElement;
 		free(delElement);
 	}
-	DLL_Init(list);
+	DLL_Init(list); // Seznam se následně uvede do původního stavu
 }
 
 /**
@@ -116,25 +116,25 @@ void DLL_Dispose(DLList *list)
  */
 void DLL_InsertFirst(DLList *list, long data)
 {
-	DLLElementPtr newElemPtr = (DLLElementPtr)malloc(sizeof(*newElemPtr));
+	DLLElementPtr newElemPtr = (DLLElementPtr)malloc(sizeof(*newElemPtr)); // Vytvoření nového prvku
 	if (newElemPtr == NULL)
 	{
-		DLL_Error();
+		DLL_Error(); // Volání chybové funkce v případě nedostatku paměti
 		return;
 	}
-	newElemPtr->data = data;
-	newElemPtr->nextElement = list->firstElement;
-	newElemPtr->previousElement = NULL;
+	newElemPtr->data = data;					  // Do nového elementu se vloží data
+	newElemPtr->nextElement = list->firstElement; // Jako ukazatel na další element se vloží ukazatel na první element
+	newElemPtr->previousElement = NULL;			  // Ukazatel na minulý prvek se nastaví na NULL
 	if (list->firstElement != NULL)
 	{
-		list->firstElement->previousElement = newElemPtr;
-	}
-	else
+		list->firstElement->previousElement = newElemPtr; // Pokud je v seznamu víc než jeden prvek,
+	} // nastaví se ukazatel starého prvního elementu
+	else // na nový element
 	{
-		list->lastElement = newElemPtr;
-	}
-	list->firstElement = newElemPtr;
-	list->currentLength += 1;
+		list->lastElement = newElemPtr; // Pokud je v seznamu pouze jen nový element,
+	} // nastaví se i jako ukazatel na poslední element
+	list->firstElement = newElemPtr; // Nastavení nového elementu jako první element
+	list->currentLength += 1;		 // Zvýšení délky seznamu o 1
 }
 
 /**
@@ -147,25 +147,25 @@ void DLL_InsertFirst(DLList *list, long data)
  */
 void DLL_InsertLast(DLList *list, long data)
 {
-	DLLElementPtr newElemPtr = (DLLElementPtr)malloc(sizeof(*newElemPtr));
+	DLLElementPtr newElemPtr = (DLLElementPtr)malloc(sizeof(*newElemPtr)); // Vytvoření nového prvku
 	if (newElemPtr == NULL)
 	{
-		DLL_Error();
+		DLL_Error(); // Volání chybové funkce v případě nedostatku paměti
 		return;
 	}
-	newElemPtr->data = data;
-	newElemPtr->nextElement = NULL;
-	newElemPtr->previousElement = list->lastElement;
-	if (list->firstElement != NULL)
-	{
-		list->lastElement->nextElement = newElemPtr;
+	newElemPtr->data = data;						 // Vložení dat do nového prvku
+	newElemPtr->nextElement = NULL;					 // Nastavení ukazatele na další element na NULL
+	newElemPtr->previousElement = list->lastElement; // Nastavení ukazatele na předchozí element na původní poslední element
+	if (list->firstElement != NULL)					 // Pokud je v seznamu víc než jeden element,
+	{												 // do ukazatele na další prvek původního posledního elemntu
+		list->lastElement->nextElement = newElemPtr; // se vloží nový element
 	}
 	else
 	{
-		list->firstElement = newElemPtr;
+		list->firstElement = newElemPtr; // Pokud je v seznamu jen nový prvek, nastaví se i jako ukazatel na první element
 	}
-	list->lastElement = newElemPtr;
-	list->currentLength += 1;
+	list->lastElement = newElemPtr; // Nastavení nového prvku jako ukazatel na poslední element
+	list->currentLength += 1;		// Zvýšení délky seznamu o 1
 }
 
 /**
@@ -177,7 +177,7 @@ void DLL_InsertLast(DLList *list, long data)
  */
 void DLL_First(DLList *list)
 {
-	list->activeElement = list->firstElement;
+	list->activeElement = list->firstElement; // Do ukazatele na aktivní element se vloží ukazatel na první element
 }
 
 /**
@@ -189,7 +189,7 @@ void DLL_First(DLList *list)
  */
 void DLL_Last(DLList *list)
 {
-	list->activeElement = list->lastElement;
+	list->activeElement = list->lastElement; // Do ukazatele na aktivní element se vloží ukazatel na poslední element
 }
 
 /**
@@ -203,12 +203,12 @@ void DLL_GetFirst(DLList *list, long *dataPtr)
 {
 	if (list->firstElement == NULL)
 	{
-		DLL_Error();
+		DLL_Error(); // Volání chybové funkce pokud je seznam prázdný
 		return;
 	}
 	else
 	{
-		*dataPtr = list->firstElement->data;
+		*dataPtr = list->firstElement->data; // Vložení ukazatele na první element do dataPtr
 	}
 }
 
@@ -223,12 +223,12 @@ void DLL_GetLast(DLList *list, long *dataPtr)
 {
 	if (list->firstElement == NULL)
 	{
-		DLL_Error();
+		DLL_Error(); // Volání chybové funkce pokud je seznam prázdný
 		return;
 	}
 	else
 	{
-		*dataPtr = list->lastElement->data;
+		*dataPtr = list->lastElement->data; // Vložení ukazatele na poslední element do dataPtr
 	}
 }
 
@@ -243,24 +243,24 @@ void DLL_DeleteFirst(DLList *list)
 {
 	if (list->firstElement != NULL)
 	{
-		DLLElementPtr delElement;
-		delElement = list->firstElement;
+		DLLElementPtr delElement;		 // Vytvoření dočasného elementu
+		delElement = list->firstElement; // Vložení nového elementu do dočasného
 		if (list->firstElement == list->activeElement)
 		{
-			list->activeElement = NULL;
+			list->activeElement = NULL; // Pokud je první element aktivní, aktivita se ztrácí
 		}
 		if (list->firstElement == list->lastElement)
 		{
-			list->firstElement = NULL;
-			list->lastElement = NULL;
+			list->firstElement = NULL; // Pokud měl seznam jeden element, nastaví se ukazatele
+			list->lastElement = NULL;  // na první a poslední element na NULL
 		}
 		else
 		{
-			list->firstElement = list->firstElement->nextElement;
-			list->firstElement->previousElement = NULL;
+			list->firstElement = list->firstElement->nextElement; // Do ukazatele na nový první element se vloží ukazatel na další prvek starého prvního elementu
+			list->firstElement->previousElement = NULL;			  // Ukazatel na předchozí element nového prvního elementu se nastaví na NULL
 		}
-		free(delElement);
-		list->currentLength -= 1;
+		free(delElement);		  // Uvlonění dočasného elementu
+		list->currentLength -= 1; // Snížení délky seznamu o 1
 	}
 }
 
@@ -275,24 +275,24 @@ void DLL_DeleteLast(DLList *list)
 {
 	if (list->firstElement != NULL)
 	{
-		DLLElementPtr delElement;
-		delElement = list->lastElement;
+		DLLElementPtr delElement;		// Vytvoření dočasného elementu
+		delElement = list->lastElement; // Vložení nového elementu do dočasného
 		if (list->lastElement == list->activeElement)
 		{
-			list->activeElement = NULL;
+			list->activeElement = NULL; // Pokud je poslední element aktivní, aktivita se ztrácí
 		}
 		if (list->firstElement == list->lastElement)
 		{
-			list->firstElement = NULL;
-			list->lastElement = NULL;
+			list->firstElement = NULL; // Pokud měl seznam jeden element, nastaví se ukazatele
+			list->lastElement = NULL;  // na první a poslední element na NULL
 		}
 		else
 		{
-			list->lastElement = list->lastElement->previousElement;
-			list->lastElement->nextElement = NULL;
+			list->lastElement = list->lastElement->previousElement; // Do ukazatele na nový poslední element se vloží ukazatel na předchozí element starého posledního elementu
+			list->lastElement->nextElement = NULL;					// Ukazatel na další element nového posledního elementu se nastaví na NULL
 		}
-		free(delElement);
-		list->currentLength -= 1;
+		free(delElement);		  // Uvlonění dočasného elementu
+		list->currentLength -= 1; // Snížení délky seznamu o 1
 	}
 }
 
@@ -310,18 +310,18 @@ void DLL_DeleteAfter(DLList *list)
 		if (list->activeElement->nextElement != NULL)
 		{
 			DLLElementPtr delElement;
-			delElement = list->activeElement->nextElement;
-			list->activeElement->nextElement = delElement->nextElement;
+			delElement = list->activeElement->nextElement;				// Do dočasného elementu se vloží následující element aktivního elementu
+			list->activeElement->nextElement = delElement->nextElement; // Jako nový následující element aktivního elementu, se nastaví původní následující element aktivního elementu
 			if (delElement == list->lastElement)
 			{
-				list->lastElement = list->activeElement;
+				list->lastElement = list->activeElement; // Pokud je rušený prvek poslední v seznamu, bude ukazatel na aktivní element zároveň i ukazatel na poslední element
 			}
 			else
 			{
-				delElement->nextElement->previousElement = list->activeElement;
+				delElement->nextElement->previousElement = list->activeElement; // Nastavení ukazatele na předchozí element následujícího elementu za rušeným elementem na aktivní element
 			}
-			free(delElement);
-			list->currentLength -= 1;
+			free(delElement);		  // Uvolnění dočasného elementu
+			list->currentLength -= 1; // Snížení délky seznamu o 1
 		}
 	}
 }
@@ -333,7 +333,7 @@ void DLL_DeleteAfter(DLList *list)
  *
  * @param list Ukazatel na inicializovanou strukturu dvousměrně vázaného seznamu
  */
-void DLL_DeleteBefore(DLList *list)
+void DLL_DeleteBefore(DLList *list) // Analogicky k DeleteAfter
 {
 	if (list->activeElement != NULL)
 	{
@@ -376,18 +376,18 @@ void DLL_InsertAfter(DLList *list, long data)
 			return;
 		}
 		newElemPtr->data = data;
-		newElemPtr->nextElement = list->activeElement->nextElement;
-		newElemPtr->previousElement = list->activeElement;
-		list->activeElement->nextElement = newElemPtr;
+		newElemPtr->nextElement = list->activeElement->nextElement; // Nastavení ukazatele na další prvek nového prvku na následující element aktivního prvku
+		newElemPtr->previousElement = list->activeElement;			// Nastavení ukazatele na předchozí prvek nového elementu na aktivní prvek
+		list->activeElement->nextElement = newElemPtr;				// Nastavení ukazatele na další prvek aktivného elemenetu na nový element
 		if (list->activeElement == list->lastElement)
 		{
-			list->lastElement = newElemPtr;
+			list->lastElement = newElemPtr; // Pokud je aktivní element poslední element v seznamu, nastaví se nový element jako poslední element
 		}
 		else
 		{
-			newElemPtr->nextElement->previousElement = newElemPtr;
+			newElemPtr->nextElement->previousElement = newElemPtr; // Nastavení ukazatele následujícího elementu na předchozí element na nový element
 		}
-		list->currentLength += 1;
+		list->currentLength += 1; // Zvýšení délky seznamu o 1
 	}
 }
 
@@ -411,18 +411,18 @@ void DLL_InsertBefore(DLList *list, long data)
 			return;
 		}
 		newElemPtr->data = data;
-		newElemPtr->nextElement = list->activeElement;
-		newElemPtr->previousElement = list->activeElement->previousElement;
-		list->activeElement->previousElement = newElemPtr;
+		newElemPtr->nextElement = list->activeElement;						// Nastavení ukazatele na další element nového elementu na aktivní element
+		newElemPtr->previousElement = list->activeElement->previousElement; // Nastavení ukazatele na předchozí element nového elementu na předchozí element aktivního elementu
+		list->activeElement->previousElement = newElemPtr;					// Nastavení ukazatele na předchozí element aktivního elementu na nový element
 		if (list->activeElement == list->firstElement)
 		{
-			list->firstElement = newElemPtr;
+			list->firstElement = newElemPtr; // Pokud je aktivní element první v seznamu, nastaví se ukazatel na první element na nový element
 		}
 		else
 		{
-			newElemPtr->previousElement->nextElement = newElemPtr;
+			newElemPtr->previousElement->nextElement = newElemPtr; // Ukazatel na následující element předchozího elementu se nastaví na nový element
 		}
-		list->currentLength += 1;
+		list->currentLength += 1; // Zvýšení délky seznamu o 1
 	}
 }
 
@@ -442,7 +442,7 @@ void DLL_GetValue(DLList *list, long *dataPtr)
 	}
 	else
 	{
-		*dataPtr = list->activeElement->data;
+		*dataPtr = list->activeElement->data; // Uložení ukazatele na data aktivního prvku do dataPtr
 	}
 }
 
@@ -457,7 +457,7 @@ void DLL_SetValue(DLList *list, long data)
 {
 	if (list->activeElement != NULL)
 	{
-		list->activeElement->data = data;
+		list->activeElement->data = data; // Vložení dat do aktivního elementu
 	}
 }
 
@@ -470,9 +470,9 @@ void DLL_SetValue(DLList *list, long data)
  */
 void DLL_Next(DLList *list)
 {
-	if (list->activeElement != NULL)
+	if (list->activeElement != NULL) // Kontrola zda je seznam aktivní
 	{
-		list->activeElement = list->activeElement->nextElement;
+		list->activeElement = list->activeElement->nextElement; // Nastavení dalšího elementu jako aktivní
 	}
 }
 
@@ -487,7 +487,7 @@ void DLL_Previous(DLList *list)
 {
 	if (list->activeElement != NULL)
 	{
-		list->activeElement = list->activeElement->previousElement;
+		list->activeElement = list->activeElement->previousElement; // Nastavení předchozího elementu jako aktivní
 	}
 }
 
@@ -501,7 +501,7 @@ void DLL_Previous(DLList *list)
  */
 bool DLL_IsActive(DLList *list)
 {
-	return (list->activeElement != NULL) ? 1 : 0;
+	return (list->activeElement != NULL) ? 1 : 0; // Pokud je seznam aktivní vrací 1, jinak 0
 }
 
 /* Konec c206.c */
