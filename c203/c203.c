@@ -91,19 +91,19 @@ void Queue_Error(int error_code)
  *
  * @param queue Ukazatel na strukturu fronty
  */
-void Queue_Init(Queue *queue)
+void Queue_Init(Queue *queue) // Inicializace fronty
 {
 	if (queue == NULL)
 	{
-		Queue_Error(QERR_INIT);
-	}
+		Queue_Error(QERR_INIT); // V případě kdy se jako parametr queue použije NULL,
+	} // zavolá se chybová funkce
 	else
 	{
-		queue->firstIndex = 0;
-		queue->freeIndex = 0;
+		queue->firstIndex = 0; // Nastavení indexu začátku fronty
+		queue->freeIndex = 0;  // Nastavení indexu prvního volného místa
 		for (int i = 0; i < QUEUE_SIZE; i++)
 		{
-			queue->array[i] = '*';
+			queue->array[i] = '*'; // Nastavení všech hodnot ve frontě na *
 		}
 	}
 }
@@ -117,8 +117,8 @@ void Queue_Init(Queue *queue)
  */
 int nextIndex(int index)
 {
-	return index = (index + 1) % QUEUE_SIZE;
-}
+	return index = (index + 1) % QUEUE_SIZE; // Vrácení hodnoty dalšího prvku v poli
+} // Modulo zde zajišťuje kruhové procházení pole
 
 /**
  * Vrací nenulovou hodnotu, pokud je frona prázdná, jinak vrací hodnotu 0.
@@ -128,8 +128,8 @@ int nextIndex(int index)
  */
 int Queue_IsEmpty(const Queue *queue)
 {
-	return (queue->firstIndex == queue->freeIndex) ? 1 : 0;
-}
+	return (queue->firstIndex == queue->freeIndex) ? 1 : 0; // Pokud je index prvního prvku roven indexu
+} // volného prvku, tak je fronta prázdná
 
 /**
  * Vrací nenulovou hodnotu, je-li fronta plná, jinak vrací hodnotu 0.
@@ -140,8 +140,8 @@ int Queue_IsEmpty(const Queue *queue)
  */
 int Queue_IsFull(const Queue *queue)
 {
-	return (nextIndex(queue->freeIndex) == queue->firstIndex) ? 1 : 0;
-}
+	return (nextIndex(queue->freeIndex) == queue->firstIndex) ? 1 : 0; // Pokud je index dalšího prvku roven indexu
+} // prvního prvku, tak je fronta plná
 
 /**
  * Prostřednictvím parametru dataPtr vrátí znak ze začátku fronty queue.
@@ -160,11 +160,11 @@ void Queue_Front(const Queue *queue, char *dataPtr)
 {
 	if (Queue_IsEmpty(queue) == 1)
 	{
-		Queue_Error(QERR_FRONT);
+		Queue_Error(QERR_FRONT); // Kontrola jestli fronta není prázdná
 	}
 	else
 	{
-		*dataPtr = queue->array[queue->firstIndex];
+		*dataPtr = queue->array[queue->firstIndex]; // Vložení ukazatele na první prvek v poli do dataPtr
 	}
 }
 
@@ -180,11 +180,11 @@ void Queue_Remove(Queue *queue)
 {
 	if (Queue_IsEmpty(queue) == 1)
 	{
-		Queue_Error(QERR_REMOVE);
+		Queue_Error(QERR_REMOVE); // Kontrola jestli fronta není prázdná
 	}
 	else
 	{
-		queue->firstIndex += 1;
+		queue->firstIndex += 1; // Posunutí prvního prvku o jeden
 	}
 }
 
@@ -202,12 +202,12 @@ void Queue_Dequeue(Queue *queue, char *dataPtr)
 {
 	if (Queue_IsEmpty(queue) == 1)
 	{
-		Queue_Error(QERR_DEQUEUE);
+		Queue_Error(QERR_DEQUEUE); // Kontrola jestli fronta není prázdná
 	}
 	else
 	{
-		Queue_Front(queue, dataPtr);
-		Queue_Remove(queue);
+		Queue_Front(queue, dataPtr); // Uložení prvku ze začátku fronty
+		Queue_Remove(queue);		 // Odstranění prvku ze začátku fronty
 	}
 }
 
@@ -227,12 +227,12 @@ void Queue_Enqueue(Queue *queue, char data)
 {
 	if (Queue_IsFull(queue) == 1)
 	{
-		Queue_Error(QERR_ENQUEUE);
+		Queue_Error(QERR_ENQUEUE); // Kontrola jestli fronta není plná
 	}
 	else
 	{
-		queue->array[queue->freeIndex] = data;
-		queue->freeIndex = nextIndex(queue->freeIndex);
+		queue->array[queue->freeIndex] = data;			// Vložení dat na volnou pozici ve frontě
+		queue->freeIndex = nextIndex(queue->freeIndex); // Posunutí indexu volné pozice
 	}
 }
 
