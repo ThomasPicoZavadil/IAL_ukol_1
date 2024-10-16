@@ -184,7 +184,7 @@ void Queue_Remove(Queue *queue)
 	}
 	else
 	{
-		queue->firstIndex += 1; // Posunutí prvního prvku o jeden
+		queue->firstIndex = nextIndex(queue->firstIndex); // Nastavení ukazatele na první element na další element
 	}
 }
 
