@@ -32,36 +32,35 @@ void receive_packet(DLList *packetLists, PacketPtr packet)
 	QosPacketListPtr qosList = NULL;
 	DLLElementPtr temp = packetLists->firstElement;
 
-	// Hledání fronty odpovídající priority
-	while (temp != NULL)
+	while (temp != NULL) // Procházení seznamu front a hledání fronty odpovídající prioritě přijatého paketu
 	{
 		QosPacketListPtr currentList = (QosPacketListPtr)temp->data;
-		if (packet->priority == currentList->priority) // Correct comparison
+		if (packet->priority == currentList->priority) // Pokud nalezena fronta s odpovídající prioritou, ukončení hledání
 		{
 			qosList = currentList;
 			break;
 		}
-		temp = temp->nextElement; // Traverse correctly to the next element
+		temp = temp->nextElement;
 	}
 
-	if (qosList == NULL)
+	if (qosList == NULL) // Pokud fronta s danou prioritou neexistuje, je alokována a inicializována
 	{
 		qosList = (QosPacketListPtr)malloc(sizeof(QosPacketList));
 		qosList->priority = packet->priority;
 		qosList->list = (DLList *)malloc(sizeof(DLList));
-		DLL_Init(qosList->list);
-		DLL_InsertLast(packetLists, (long)qosList);
+		DLL_Init(qosList->list);					// Inicializace seznamu paketů pro danou prioritu
+		DLL_InsertLast(packetLists, (long)qosList); // Vložení nové fronty do seznamu front
 	}
 
-	DLL_InsertLast(qosList->list, (long)packet);
+	DLL_InsertLast(qosList->list, (long)packet); // Vložení nového paketu na konec fronty
 
-	if (qosList->list->currentLength > MAX_PACKET_COUNT)
+	if (qosList->list->currentLength > MAX_PACKET_COUNT) // Pokud počet paketů ve frontě překročí MAX_PACKET_COUNT, odstraň přebytečné
 	{
-		DLL_First(qosList->list);
-		for (int i = 0; i < (MAX_PACKET_COUNT / 2) + 1; i++)
+		DLL_First(qosList->list);							 // Nastavení ukazatele na první prvek seznamu
+		for (int i = 0; i < (MAX_PACKET_COUNT / 2) + 1; i++) // Mazání každého druhého paketu, dokud se nezmenší počet paketů pod limit
 		{
-			DLL_DeleteAfter(qosList->list);
-			DLL_Next(qosList->list);
+			DLL_DeleteAfter(qosList->list); // Mazání dalšího prvku
+			DLL_Next(qosList->list);		// Posun na další prvek seznamu
 		}
 	}
 }
@@ -83,19 +82,17 @@ void receive_packet(DLList *packetLists, PacketPtr packet)
  */
 void send_packets(DLList *packetLists, DLList *outputPacketList, int maxPacketCount)
 {
-	int sentCount = 0;
+	int sentCount = 0; // Počet odeslaných paketů
 
-	// Cyklus přes všechny priority (prioritní fronty jsou uložené v packetLists)
-	while (sentCount < maxPacketCount)
+	while (sentCount < maxPacketCount) // Cyklus pokračuje, dokud nebyl odeslán maximální počet paketů
 	{
 		QosPacketListPtr highestPriorityList = NULL;
 		DLLElementPtr temp = packetLists->firstElement;
 
-		// Hledání fronty s nejvyšší prioritou, která není prázdná
-		while (temp != NULL)
+		while (temp != NULL) // Procházení seznamu front a hledání fronty s nejvyšší prioritou obsahující pakety
 		{
 			QosPacketListPtr currentList = (QosPacketListPtr)temp->data;
-			if (currentList->list->firstElement != NULL)
+			if (currentList->list->firstElement != NULL) // Pokud fronta obsahuje pakety a má vyšší prioritu než dosud nalezené, ulož ji
 			{
 				if (highestPriorityList == NULL || currentList->priority > highestPriorityList->priority)
 				{
@@ -105,17 +102,15 @@ void send_packets(DLList *packetLists, DLList *outputPacketList, int maxPacketCo
 			temp = temp->nextElement;
 		}
 
-		// Pokud žádná fronta není k dispozici, ukončujeme
-		if (highestPriorityList == NULL)
+		if (highestPriorityList == NULL) // Pokud nejsou žádné fronty s pakety, ukonči cyklus
 		{
 			break;
 		}
 
-		// Odeslání paketu z fronty s nejvyšší prioritou
-		PacketPtr packetToSend = (PacketPtr)highestPriorityList->list->firstElement->data;
-		DLL_InsertLast(outputPacketList, (long)packetToSend);
-		DLL_DeleteFirst(highestPriorityList->list);
+		PacketPtr packetToSend = (PacketPtr)highestPriorityList->list->firstElement->data; // Získání paketu s nejvyšší prioritou k odeslání
+		DLL_InsertLast(outputPacketList, (long)packetToSend);							   // Vložení paketu do výstupního seznamu
+		DLL_DeleteFirst(highestPriorityList->list);										   // Odstranění paketu z fronty
 
-		sentCount++;
+		sentCount++; // Zvýšení počtu odeslaných paketů
 	}
 }
